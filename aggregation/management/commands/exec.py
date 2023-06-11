@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from aggregation.models import Author, Publisher, Book, Store
+from orm.models import Publication, Article
 from datetime import date
 
 from django.db.models import Avg, Max, Min, Count, Sum, Q
@@ -179,11 +180,76 @@ def query_data_raw():
 
 
 
+def insert_data_orm():
+    p1 = Publication(title="The Python Journal")
+    p1.save()
+    p2 = Publication(title="Science News")
+    p2.save()
+    p3 = Publication(title="Science Weekly")
+    p3.save()
+
+    a1 = Article(headline="Django lets you build web apps easily")
+    a1.save()
+    a1.publication_set.add(p1)
+
+    a2 = Article(headline="NASA uses Python")
+    a2.save()
+    a2.publication_set.add(p1, p2)
+    a2.publication_set.add(p3)
+
+    # Create and add a Publication to an Article in one step using create()
+    a2 = Article.objects.get(pk=2)
+    p4 = a2.publication_set.create(title="Highlights for Children")
+
+    p2 = Publication.objects.get(pk=2)
+    a3 = p2.article_set.create(headline="Oxygen-free diet works wonders")
 
 
+def query_data_orm():
+    a1 = Article.objects.get(headline='Django lets you build web apps easily')
+    print(a1.publication_set.all())
 
+    a2 = Article.objects.get(pk=2)
+    print(a2.publication_set.all())
+    print(a2.publication_set.filter(title__icontains='science'))
+    print(Article.objects.filter(publication_set__title__istartswith='science'))
+    print(Article.objects.filter(publication_set__title__istartswith='science').count())
+    print(Article.objects.filter(publication_set__title__istartswith='science').distinct())
+    print(Article.objects.filter(publication_set__title__istartswith='science').distinct().count())
+    
+    p1 = Publication.objects.get(title='The Python Journal')
+    print(p1.article_set.all())
+    print(p1.article_set.filter(headline__icontains='NASA'))
 
+    # The below 4 queries are exactly the same
+    print(Article.objects.filter(publication_set__id=1))
+    print(Article.objects.filter(publication_set__pk=1))
+    print(Article.objects.filter(publication_set=1))
+    print(Article.objects.filter(publication_set=p1))
 
+    print(Article.objects.filter(publication_set__in=[1, 2]).distinct())
+    p2 = Publication.objects.get(pk=2)
+    print(Article.objects.filter(publication_set__in=[p1, p2]).distinct())
+
+    # Reverse queries
+    print(Publication.objects.filter(article_set__headline__startswith="NASA"))
+    print(Publication.objects.filter(article_set__id=1))
+    print(Publication.objects.filter(article_set__pk=1))
+    print(Publication.objects.filter(article_set=1))
+    print(Publication.objects.filter(article_set=a1))
+
+    print(Publication.objects.filter(article_set__in=[1, 2]).distinct())
+    print(Publication.objects.filter(article_set__in=[a1, a2]).distinct())
+
+    print(Article.objects.exclude(publication_set=p2))
+
+    print(p2.article_set.all())
+    a3 = p2.article_set.all()[1]
+    print(a3)
+    print(a3.publication_set.all())
+
+    
+    
 
     
 # TODO django async aggregate and others 
@@ -196,8 +262,12 @@ class Command(BaseCommand):
         pass
         # insert_data()
         # query_data()
-        query_data_raw()
+        # query_data_raw()
         # print(timezone.get_current_timezone_name())
+
+        # insert_data_orm()
+        query_data_orm()
+
 
 
 
