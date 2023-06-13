@@ -85,16 +85,24 @@ DATABASES = {
     }
 }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'db3',
-#         'USER': 'root',
-#         'PASSWORD': 'root',
-#         'HOST':'localhost',
-#         'PORT':'3306',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        "OPTIONS": {
+            "read_default_file": str(BASE_DIR / 'mysql.cnf'),
+        },
+    }
+}
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "OPTIONS": {
+            "service": str(BASE_DIR / 'pg_service'),
+            "passfile": str(BASE_DIR / '.pgpass')
+        },
+    }
+}
 
 
 # Password validation
