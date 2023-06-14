@@ -98,11 +98,29 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "OPTIONS": {
-            "service": str(BASE_DIR / 'pg_service'),
+            "service": 'my_service', # put .pg_service.cnf under C:\Users\[user]\AppData\Roaming\postgresql\ for Windows
             "passfile": str(BASE_DIR / '.pgpass')
         },
     }
 }
+
+# C:\Users\[user]\AppData\Roaming\postgresql\.pg_service.cnf
+# [my_service]
+# host=localhost
+# user=root
+# dbname=db1
+# port=5432
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'db1', 
+#         'USER': 'root',
+#         'PASSWORD': 'root',
+#         'HOST': '127.0.0.1', 
+#         'PORT': '5432',
+#     }
+# }
 
 
 # Password validation
